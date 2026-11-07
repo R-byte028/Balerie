@@ -686,7 +686,8 @@ photoWindow.addEventListener("pointermove", (event) => {
 
   const deltaX = event.clientX - heroLastPointerX;
   heroLastPointerX = event.clientX;
-  const cylinderRadius = document.documentElement.clientWidth * (window.innerWidth <= 760 ? 0.82 : 0.48);\n  heroOffset -= deltaX / cylinderRadius;
+  const cylinderRadius = document.documentElement.clientWidth * (window.innerWidth <= 760 ? 0.82 : 0.48);
+  heroOffset -= deltaX / cylinderRadius;
 
   const sampleTime = event.timeStamp;
   heroDragSamples.push({ time: sampleTime, offset: heroOffset });
