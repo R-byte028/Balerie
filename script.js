@@ -605,29 +605,20 @@ if ("ResizeObserver" in window) {
 }
 
 function positionPhotos(timestamp) {
-  const photoWidth = Number.parseFloat(getComputedStyle(photoCards[0]).width);
-  const gap =
-    window.innerWidth <= 760
-      ? window.innerWidth * 0.08
-      : Math.min(58, Math.max(36, window.innerWidth * 0.04));
-  const step = photoWidth + gap;
-  const cycleWidth = step * photoCount;
-  const requiredSequences = Math.max(3, Math.ceil(window.innerWidth / cycleWidth) + 2);
-
-  while (sequenceCount < requiredSequences) {
-    addPhotoSequence();
-  }
-
   const elapsed = heroPreviousFrame
     ? Math.min((timestamp - heroPreviousFrame) / 1000, 0.05)
     : 0;
   heroPreviousFrame = timestamp;
 
+  const viewportWidth = document.documentElement.clientWidth;
+  const mobile = window.innerWidth <= 760;
+  const cylinderRadius = viewportWidth * (mobile ? 0.82 : 0.48);
+
   if (heroDragPointerId === null) {
     if (!reducedMotion.matches) {
-      heroOffset += 36 * elapsed;
+      heroOffset += 0.22 * elapsed;
     }
-    if (Math.abs(heroVelocity) > 0.1) {
+    if (Math.abs(heroVelocity) > 0.001) {
       heroOffset += heroVelocity * elapsed;
       heroVelocity *= Math.exp(-3.2 * elapsed);
     } else {
@@ -635,31 +626,24 @@ function positionPhotos(timestamp) {
     }
   }
 
-  const normalizedOffset =
-    ((heroOffset % cycleWidth) + cycleWidth) % cycleWidth;
-  const viewportWidth = document.documentElement.clientWidth;
-  const curveDepth = Math.min(58, window.innerHeight * 0.09);
-  const curveTop = window.innerWidth <= 760 ? 88 : 110;
-  const cylinderRadius = viewportWidth * 0.65;
-  const maximumRotation = window.innerWidth <= 760 ? 46 : 54;
-  const centeredSequence = Math.floor(sequenceCount / 2);
+  const angleStep = (Math.PI * 2) / photoCount;
+  const normalizedRotation = ((heroOffset % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+  const cardTop = mobile ? 92 : 112;
 
   photoCards.forEach((card, index) => {
-    const x = index * step - normalizedOffset - centeredSequence * cycleWidth;
-    const center = x + photoWidth / 2;
-    const distance = (center - viewportWidth / 2) / (viewportWidth / 2);
-    const curve = Math.max(0, 1 - distance * distance);
-    const y = curveTop + curveDepth * curve;
-    const angle = -Math.max(-1, Math.min(1, distance)) * maximumRotation;
-    const z = cylinderRadius * (Math.cos((angle * Math.PI) / 180) - 1);
-    card.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${angle}deg)`;
+    let angle = index * angleStep - normalizedRotation;
+    angle = Math.atan2(Math.sin(angle), Math.cos(angle));
+    const x = cylinderRadius * Math.sin(angle);
+    const z = cylinderRadius * (Math.cos(angle) - 1);
+    const y = cardTop;
+    const facing = (angle * 180) / Math.PI;
+
+    card.style.transform =
+      `translate3d(calc(50vw - 50% + ${x}px), ${y}px, ${z}px) rotateY(${facing}deg)`;
+    card.style.zIndex = String(Math.round((Math.cos(angle) + 1) * 100));
   });
 
-  if (
-    !reducedMotion.matches ||
-    heroDragPointerId !== null ||
-    heroVelocity !== 0
-  ) {
+  if (!reducedMotion.matches || heroDragPointerId !== null || heroVelocity !== 0) {
     requestAnimationFrame(positionPhotos);
   }
 }
@@ -702,7 +686,7 @@ photoWindow.addEventListener("pointermove", (event) => {
 
   const deltaX = event.clientX - heroLastPointerX;
   heroLastPointerX = event.clientX;
-  heroOffset -= deltaX;
+  const cylinderRadius = document.documentElement.clientWidth * (window.innerWidth <= 760 ? 0.82 : 0.48);\n  heroOffset -= deltaX / cylinderRadius;
 
   const sampleTime = event.timeStamp;
   heroDragSamples.push({ time: sampleTime, offset: heroOffset });
