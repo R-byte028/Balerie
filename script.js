@@ -634,9 +634,9 @@ function positionPhotos(timestamp) {
     let angle = index * angleStep - normalizedRotation;
     angle = Math.atan2(Math.sin(angle), Math.cos(angle));
     const x = cylinderRadius * Math.sin(angle);
-    const z = cylinderRadius * (Math.cos(angle) - 1);
+    const z = cylinderRadius * (1 - Math.cos(angle));
     const y = cardTop;
-    const facing = (angle * 180) / Math.PI;
+    const facing = (-angle * 180) / Math.PI;
 
     card.style.transform =
       `translate3d(calc(50vw - 50% + ${x}px), ${y}px, ${z}px) rotateY(${facing}deg)`;
