@@ -3686,3 +3686,14 @@ body {
     margin-bottom: 9px;
   }
 }
+
+
+.rsvp-submit-status {
+  min-height: 1.4em;
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.rsvp-submit-status.is-success { color: #376b45; }
+.rsvp-submit-status.is-error { color: #a33e32; }
+.rsvp-submit:disabled { opacity: 0.65; cursor: wait; }
