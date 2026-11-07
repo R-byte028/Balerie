@@ -984,10 +984,59 @@ body {
   line-height: 1.1;
 }
 
+.scratch-scene {
+  position: relative;
+  z-index: 0;
+  width: min(100%, 440px);
+  isolation: isolate;
+}
+
+.scratch-stars {
+  position: absolute;
+  z-index: 0;
+  inset: -44px -76px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.scratch-stars span {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  color: #b9955d;
+  font-size: var(--size);
+  line-height: 1;
+  opacity: 0.16;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(185, 149, 93, 0.18);
+  transform: scale(0.78);
+  animation: scratch-star-twinkle var(--duration) ease-in-out var(--delay) infinite;
+  will-change: opacity, transform;
+}
+
+.scratch-stars span::before {
+  content: "✦";
+}
+
+@keyframes scratch-star-twinkle {
+  0%,
+  100% {
+    opacity: 0.14;
+    transform: scale(0.76);
+  }
+
+  48%,
+  58% {
+    opacity: var(--peak);
+    transform: scale(1.08);
+  }
+}
+
 .scratch-card {
   position: relative;
+  z-index: 1;
   display: grid;
-  width: min(100%, 440px);
+  width: 100%;
   aspect-ratio: 2.1;
   place-items: center;
   overflow: hidden;
@@ -2106,9 +2155,12 @@ body {
   }
 
   .scratch-card {
-    width: min(100%, 440px);
     aspect-ratio: 1.75;
     border-radius: 14px;
+  }
+
+  .scratch-stars {
+    inset: -32px -36px;
   }
 
   .scratch-instructions {
@@ -3250,6 +3302,15 @@ body {
 .faq-section :focus-visible {
   outline-color: #a63e5b;
   outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scratch-stars span {
+    opacity: 0.3;
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
 }
 
 @media (max-width: 560px) {
