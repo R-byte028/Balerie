@@ -10,6 +10,7 @@
     <title>Val &amp; Bobby — Wedding Invitation</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
+    <script type="module" src="rsvp.js"></script>
   </head>
   <body>
     <div class="entrance" aria-label="Wedding invitation entrance">
@@ -890,6 +891,9 @@
                   name="name"
                   autocomplete="name"
                   placeholder="Your name"
+                  minlength="2"
+                  maxlength="120"
+                  required
                 />
               </label>
               <label class="rsvp-field">
@@ -899,6 +903,9 @@
                   name="phone"
                   autocomplete="tel"
                   placeholder="080..."
+                  minlength="7"
+                  maxlength="30"
+                  required
                 />
               </label>
             </div>
@@ -936,7 +943,8 @@
             </label>
 
             <div class="rsvp-submit-wrap">
-              <button class="rsvp-submit" type="button">Send RSVP</button>
+              <button class="rsvp-submit" type="submit">Send RSVP</button>
+              <p class="rsvp-submit-status" role="status" aria-live="polite"></p>
             </div>
           </form>
         </div>
