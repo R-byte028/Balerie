@@ -52,8 +52,9 @@ function render() {
       <td>${escapeHtml(eventLabels[guest.event_attendance] || guest.event_attendance)}</td>
       <td>${escapeHtml(guest.note || "—")}</td>
       <td>${escapeHtml(date)}</td>
+      <td><button class="button-delete" type="button" data-delete-id="${escapeHtml(guest.id)}" aria-label="Delete RSVP from ${escapeHtml(guest.guest_name)}">Delete</button></td>
     </tr>`;
-  }).join("") : '<tr><td colspan="6" class="empty">No matching RSVPs yet.</td></tr>';
+  }).join("") : '<tr><td colspan="7" class="empty">No matching RSVPs yet.</td></tr>';
 }
 
 function updateStats() {
@@ -115,6 +116,37 @@ document.querySelector("#sign-out").addEventListener("click", async () => {
   dashboard.hidden = true;
   loginPanel.hidden = false;
   loginForm.reset();
+});
+
+
+rows.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-delete-id]");
+  if (!button) return;
+
+  const guest = allRsvps.find((item) => item.id === button.dataset.deleteId);
+  if (!guest) return;
+  if (!window.confirm(`Delete the RSVP from ${guest.guest_name}? This cannot be undone.`)) return;
+
+  button.disabled = true;
+  button.textContent = "Deleting…";
+  showMessage(dashboardMessage, "");
+  const { data, error } = await supabase
+    .from("wedding_rsvps")
+    .delete()
+    .eq("id", guest.id)
+    .select("id");
+
+  if (error || !data?.length) {
+    showMessage(dashboardMessage, error ? `Could not delete RSVP: ${error.message}` : "The RSVP was not deleted. Please refresh and try again.");
+    button.disabled = false;
+    button.textContent = "Delete";
+    return;
+  }
+
+  allRsvps = allRsvps.filter((item) => item.id !== guest.id);
+  updateStats();
+  render();
+  showMessage(dashboardMessage, `Deleted ${guest.guest_name}'s RSVP.`, true);
 });
 
 document.querySelector("#refresh").addEventListener("click", loadRsvps);
